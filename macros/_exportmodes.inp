@@ -1,23 +1,28 @@
 !-------------------------------------------------------------------------------
-! Project Name:         n/a
-! Project Number:       n/a
+! function _exportmodes
+!-------------------------------------------------------------------------------
 !
-! Author:               SG
-! Date Created:         2018-05-28
-! Date Modified:        2018-05-29
-!
-! Description:          XML Export for Modal Analysis
-!
-! File Inputs:          n/a
-! File Outputs:         output.xml
+! Generates an XML file describing the model (area element) geometry and modal
+! analysis results. The XML tags are based on the format used by SAP2000 for
+! compatibility with dynamics postprocessing tools created by Intelligent
+! Engineering.
 !
 !
-! _exportmodes.inp generates an XML file describing the model (area element)
-! geometry and modal analysis results. The XML tags are based on the format
-! used by SAP2000 for compatibility with dynamics postprocessing tools created
-! by Intelligent Engineering.
+! author:        SG
+! date modified: 2018-05-29
+!
+!
+! requires:
+!    n/a
+!
+! result:
+!    Creates XML output file.
+!
+! sample usage:
+!    /input,_exportmodes,inp,Macros
 !
 ! Solve and expand modes before running this macro.
+!
 !-------------------------------------------------------------------------------
 
 
