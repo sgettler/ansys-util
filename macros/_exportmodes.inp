@@ -13,15 +13,13 @@
 !
 !
 ! requires:
-!    n/a
+!    Solved and expanded modes.
 !
 ! result:
 !    Creates XML output file.
 !
 ! sample usage:
 !    /input,_exportmodes,inp,Macros
-!
-! Solve and expand modes before running this macro.
 !
 !-------------------------------------------------------------------------------
 
