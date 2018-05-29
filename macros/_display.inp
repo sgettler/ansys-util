@@ -1,0 +1,50 @@
+!-------------------------------------------------------------------------------
+! function _display
+!-------------------------------------------------------------------------------
+!
+! Orients the display and sets general options.
+!
+! author:        SG
+! date modified: 2015-12-17
+!
+!
+! requires:
+!    n/a
+!
+! result:
+!    Updates display.
+!
+! sample usage:
+!    /input,_display,inp,Macros
+!
+!-------------------------------------------------------------------------------
+
+
+
+! view angle
+/view,1,-1,-1,1
+/ang,1
+/auto,1
+/vup,1,z
+
+
+! display options
+/pnum,mat,1
+/pbc,all,,0
+/num,1
+/plopts,info,auto
+/plopts,minm,off
+/triad,off
+
+
+! plot
+*get,E0,elem,,count
+*get,A0,area,,count
+*if,E0,ne,0,then
+    /eshape,1
+    eplot
+*elseif,A0,ne,0,then
+    aplot
+*else
+    lplot
+*endif
