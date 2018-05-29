@@ -1,0 +1,211 @@
+!-------------------------------------------------------------------------------
+! Project Name:         n/a
+! Project Number:       n/a
+!
+! Author:               SG
+! Date Created:         2018-05-28
+! Date Modified:        2018-05-29
+!
+! Description:          XML Export for Modal Analysis
+!
+! File Inputs:          n/a
+! File Outputs:         output.xml
+!
+!
+! _exportmodes.inp generates an XML file describing the model (area element)
+! geometry and modal analysis results. The XML tags are based on the format
+! used by SAP2000 for compatibility with dynamics postprocessing tools created
+! by Intelligent Engineering.
+!
+! Solve and expand modes before running this macro.
+!-------------------------------------------------------------------------------
+
+
+
+/post1
+
+OUTPATH = 'results/'        ! output file path
+OUTFILE = 'output'          ! output file name
+
+N_MODES = 25                ! number of modes to output
+
+
+
+! program control
+!---------------------------------------
+
+*cfopen,strcat(OUTPATH,OUTFILE),xml
+*vwrite,'<?xml version="1.0" standalone="','yes"?>'
+%C%C
+*vwrite,'<NewDataSet>'
+%C
+
+
+
+*vwrite,'  <Program_x0020_Control>'
+%C
+*vwrite,'    <ProgramName>','ANSYS','</ProgramName>'
+%C%C%C
+*get,ANSYSVER,active,,rev
+*vwrite,'    <Version>',chrval(ANSYSVER),'</Version>'
+%C%C%C
+*vwrite,'    <CurrUnits>','N, m, C','</CurrUnits>'
+%C%C%C
+*vwrite,'  </Program_x0020_Control>'
+%C
+
+
+
+! groups
+!---------------------------------------
+
+allsel
+*get,N_COMPONENTS,comp,,ncomp
+*do,I,1,N_COMPONENTS
+    *get,COMP_NAME,comp,I,name
+    *get,COMP_TYPE,comp,COMP_NAME,type
+    *if,COMP_TYPE,eq,8,then
+        cmsel,,COMP_NAME
+        *get,N_AREAS,area,,count
+        *vget,AREALIST,area,,alist
+        *do,J,1,N_AREAS
+
+*vwrite,'  <Groups_x0020_2_x0020_-_x0020_','Assignments>'
+%C%C
+*vwrite,'    <GroupName>',COMP_NAME,'</GroupName>'
+%C%C%C
+*vwrite,'    <ObjectType>','Area','</ObjectType>'
+%C%C%C
+*vwrite,'    <ObjectLabel>',chrval(AREALIST(J)),'</ObjectLabel>'
+%C%C%C
+*vwrite,'  </Groups_x0020_2_x0020_-_x0020','_Assignments>'
+%C%C
+
+        *enddo
+        AREALIST =
+    *endif
+*enddo
+
+
+
+! mode shapes
+!---------------------------------------
+
+allsel
+*get,N_NODES,node,,count
+*vget,NODELIST,node,,nlist
+
+set,first
+*do,I,1,N_MODES
+    *do,J,1,N_NODES
+
+*vwrite,'  <Joint_x0020_Displacements>'
+%C
+*vwrite,'    <Joint>',chrval(NODELIST(J)),'</Joint>'
+%C%C%C
+*vwrite,'    <OutputCase>','MODAL','</OutputCase>'
+%C%C%C
+*vwrite,'    <StepNum>',chrval(I),'</StepNum>'
+%C%C%C
+*get,MODE_UZ,node,NODELIST(J),u,z
+*vwrite,'    <U3>',chrval(MODE_UZ),'</U3>'
+%C%C%C
+*vwrite,'  </Joint_x0020_Displacements>'
+%C
+
+    *enddo
+    set,next
+*enddo
+
+
+
+! nodes
+!---------------------------------------
+
+*do,J,1,N_NODES
+
+*vwrite,'  <Objects_x0020_And_x0020_Eleme','nts_x0020_-_x0020_Joints>'
+%C%C
+*vwrite,'    <JointElem>',chrval(NODELIST(J)),'</JointElem>'
+%C%C%C
+*get,NODE_X,node,NODELIST(J),loc,x
+*vwrite,'    <GlobalX>',chrval(NODE_X),'</GlobalX>'
+%C%C%C
+*get,NODE_Y,node,NODELIST(J),loc,y
+*vwrite,'    <GlobalY>',chrval(NODE_Y),'</GlobalY>'
+%C%C%C
+*get,NODE_Z,node,NODELIST(J),loc,z
+*vwrite,'    <GlobalZ>',chrval(NODE_Z),'</GlobalZ>'
+%C%C%C
+*vwrite,'  </Objects_x0020_And_x0020_Elem','ents_x0020_-_x0020_Joints>'
+%C%C
+
+*enddo
+
+
+
+! area elements
+!---------------------------------------
+
+allsel
+*get,N_AREAS,area,,count
+*vget,AREALIST,area,,alist
+
+*do,I,1,N_AREAS
+    asel,,area,,AREALIST(I)
+    esla
+    *get,N_ELEMENTS,elem,,count
+    *vget,ELEMLIST,elem,,elist
+    *do,J,1,N_ELEMENTS
+
+*vwrite,'  <Objects_x0020_And_x0020_Eleme','nts_x0020_-_x0020_Areas>'
+%C%C
+*vwrite,'    <AreaElem>',chrval(ELEMLIST(J)),'</AreaElem>'
+%C%C%C
+*vwrite,'    <AreaObject>',chrval(AREALIST(I)),'</AreaObject>'
+%C%C%C
+*get,NODE_1,elem,ELEMLIST(J),node,1
+*vwrite,'    <ElemJt1>',chrval(NODE_1),'</ElemJt1>'
+%C%C%C
+*get,NODE_2,elem,ELEMLIST(J),node,2
+*vwrite,'    <ElemJt2>',chrval(NODE_2),'</ElemJt2>'
+%C%C%C
+*get,NODE_3,elem,ELEMLIST(J),node,3
+*vwrite,'    <ElemJt3>',chrval(NODE_3),'</ElemJt3>'
+%C%C%C
+*get,NODE_4,elem,ELEMLIST(J),node,4
+*vwrite,'    <ElemJt4>',chrval(NODE_4),'</ElemJt4>'
+%C%C%C
+*vwrite,'  </Objects_x0020_And_x0020_Elem','ents_x0020_-_x0020_Areas>'
+%C%C
+
+    *enddo
+    ELEMLIST =
+*enddo
+
+
+
+! frequencies
+!---------------------------------------
+
+*do,I,1,N_MODES
+
+*vwrite,'  <Modal_x0020_Periods_x0020_A','nd_x0020_Frequencies>'
+%C%C
+*vwrite,'    <OutputCase>','MODAL','</OutputCase>'
+%C%C%C
+*vwrite,'    <StepNum>',chrval(I),'</StepNum>'
+%C%C%C
+*get,MODE_FREQ,mode,I,freq
+*vwrite,'    <Frequency>',chrval(MODE_FREQ),'</Frequency>'
+%C%C%C
+*vwrite,'  </Modal_x0020_Periods_x0020_An','d_x0020_Frequencies>'
+%C%C
+
+*enddo
+
+
+
+*vwrite,'</NewDataSet>'
+%C
+*cfclos
