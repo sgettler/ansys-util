@@ -1,5 +1,5 @@
 !-------------------------------------------------------------------------------
-! function _exportmodes
+! function _exportmodesxml
 !-------------------------------------------------------------------------------
 !
 ! Generates an XML file describing the model (area element) geometry and modal
@@ -19,7 +19,7 @@
 !    Creates XML output file.
 !
 ! sample usage:
-!    /input,_exportmodes,inp,Macros
+!    /input,_exportmodesxml,inp,Macros
 !
 !-------------------------------------------------------------------------------
 
