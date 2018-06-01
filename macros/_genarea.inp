@@ -1,0 +1,65 @@
+!-------------------------------------------------------------------------------
+! function _genarea
+!-------------------------------------------------------------------------------
+!
+! Generates an area based on a series of keypoints defining the perimeter.
+!
+! author:        SG
+! date modified: 2015-12-17
+!
+!
+! requires:
+!    AREA_PTS = array of coordinate vectors, [x y z]^T * n columns
+!
+! result:
+!    An area with the specified perimeter.
+!
+! sample usage:
+!    *dim,AREA_PTS,array,3,5
+!    *set,AREA_PTS(1,1),X1,Y1,Z1
+!    *set,AREA_PTS(1,2),X2,Y2,Z2
+!    *set,AREA_PTS(1,3),X3,Y3,Z3
+!    *set,AREA_PTS(1,4),X4,Y4,Z4
+!    *set,AREA_PTS(1,5),X5,Y5,Z5
+!    /input,_genarea,inp,Macros
+!    aatt,MAT_STEEL,RCO_DUMMY,ETY_SHELL,,SEC_SN
+!
+!-------------------------------------------------------------------------------
+
+
+! transpose point array
+*mfun,KPTS,tran,AREA_PTS
+*vscfun,N_KPTS,num,KPTS
+
+
+! generate keypoints at coordinates
+*get,K0,kp,,num,maxd
+*do,IIIII,1,N_KPTS
+    k,K0+IIIII,KPTS(IIIII,1),KPTS(IIIII,2),KPTS(IIIII,3)
+*enddo
+
+
+! create lines
+lsel,none
+*do,IIIII,1,N_KPTS
+    IIITHIS = mod((IIIII-1),N_KPTS)+1
+    IIINEXT = mod(IIIII,N_KPTS)+1
+    l,K0+IIITHIS,K0+IIINEXT
+*enddo
+
+
+! generate area
+asel,none
+al,all
+
+
+
+! clear variables
+AREA_PTS =
+KPTS =
+
+N_KPTS =
+K0 =
+IIIII =
+IIITHIS =
+IIINEXT =

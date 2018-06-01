@@ -1,0 +1,121 @@
+!-------------------------------------------------------------------------------
+! function _genbeam
+!-------------------------------------------------------------------------------
+!
+! Generates a series of beam elements which compose a continuous beam, providing
+! keypoints (nodes when meshed) in locations desired for coupling, connections,
+! etc. Coordinates supplied are sorted relative to the beam start coordinate
+! triple, and excluding the first coordinate triple can appear in any order.
+!
+! author:        SG
+! date modified: 2015-12-17
+!
+!
+! requires:
+!    BEAM_PTS = array of coordinate vectors, [x y z]^T * n columns
+!    BEAM_OKP = vector relative to the beam end coordinate for the orientation
+!               keypoint, [x y z]^T
+!
+! result:
+!    A series of keypoints and lines describing the beam geometry, plus an
+!    orientation keypoint for defining line attributes. The line selection set
+!    contains only the new beam lines. The orientation keypoint has its keypoint
+!    number assigned to variable OKP.
+!
+! sample usage:
+!    *dim,BEAM_PTS,array,3,4
+!    *set,BEAM_PTS(1,1),X1,Y1,Z1
+!    *set,BEAM_PTS(1,2),X2,Y1,Z1
+!    *set,BEAM_PTS(1,3),X3,Y1,Z1
+!    *set,BEAM_PTS(1,4),X4,Y1,Z1
+!    *set,BEAM_OKP,X4,Y4,Z4-1
+!    /input,_genbeam,inp,Macros
+!    latt,MAT_STEEL,RCO_STEEL,ETY_BEAM,,OKP,,SEC_BEAM
+!
+!-------------------------------------------------------------------------------
+
+
+! transpose point array
+*mfun,KPTS,tran,BEAM_PTS
+*vscfun,N_KPTS,num,KPTS
+
+
+! find index with changing values
+*do,IIIII,1,3
+    *if,KPTS(1,IIIII),ne,KPTS(2,IIIII),then
+        IDX = IIIII
+    *endif
+*enddo
+NEGFIX = (KPTS(2,IDX)-KPTS(1,IDX))/abs(KPTS(2,IDX)-KPTS(1,IDX))
+
+
+! sort points
+*if,N_KPTS,gt,2,then
+    *do,IIIII,2,N_KPTS-1
+        *do,JJJJJ,2,N_KPTS-1
+            *if,NEGFIX*KPTS(JJJJJ+1,IDX),lt,NEGFIX*KPTS(JJJJJ,IDX),then
+                *do,KKKKK,1,3
+                    TMP = KPTS(JJJJJ,KKKKK)
+                    *set,KPTS(JJJJJ,KKKKK),KPTS(JJJJJ+1,KKKKK)
+                    *set,KPTS(JJJJJ+1,KKKKK),TMP
+                *enddo
+            *endif
+        *enddo
+    *enddo
+*endif
+
+
+! check for coincident points and save unique points to a new array
+*dim,KPTMASK,array,N_KPTS,1
+*set,KPTMASK(1,1),1
+N_UNQ_KPTS = 1
+
+*do,IIIII,2,N_KPTS
+    *if,KPTS(IIIII,IDX),ne,KPTS(IIIII-1,IDX),then
+        *set,KPTMASK(IIIII,1),1
+        N_UNQ_KPTS = N_UNQ_KPTS+1
+    *endif
+*enddo
+
+*dim,UNQ_KPTS,array,N_UNQ_KPTS,3
+*vmask,KPTMASK
+*vfun,UNQ_KPTS(1,1),comp,KPTS(1,1)
+*vmask,KPTMASK
+*vfun,UNQ_KPTS(1,2),comp,KPTS(1,2)
+*vmask,KPTMASK
+*vfun,UNQ_KPTS(1,3),comp,KPTS(1,3)
+
+
+! generate keypoints
+*get,K0,kp,,num,maxd
+*do,IIIII,1,N_UNQ_KPTS
+    k,K0+IIIII,UNQ_KPTS(IIIII,1),UNQ_KPTS(IIIII,2),UNQ_KPTS(IIIII,3)
+*enddo
+
+OKP = K0+N_UNQ_KPTS+1
+k,OKP,BEAM_OKP(1,1),BEAM_OKP(2,1),BEAM_OKP(3,1)
+
+
+! generate lines
+lsel,none
+*do,IIIII,1,N_UNQ_KPTS-1
+    l,K0+IIIII,K0+(IIIII+1)
+*enddo
+
+
+! clear variables
+BEAM_PTS =
+BEAM_OKP =
+KPTS =
+
+N_KPTS =
+IDX =
+NEGFIX =
+KPTMASK =
+UNQ_KPTS =
+N_UNQ_KPTS =
+K0 =
+IIIII =
+JJJJJ =
+KKKKK =
+TMP =
