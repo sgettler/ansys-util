@@ -27,7 +27,7 @@
 
 /post1
 
-OUTPATH = 'results/'        ! output file path
+OUTPATH = 'results'        ! output file path
 OUTFILE = 'output'          ! output file name
 
 N_MODES = 25                ! number of modes to output
@@ -37,7 +37,9 @@ N_MODES = 25                ! number of modes to output
 ! program control
 !---------------------------------------
 
-*cfopen,strcat(OUTPATH,OUTFILE),xml
+/mkdir,OUTPATH
+*cfopen,strcat(strcat(OUTPATH,'/'),OUTFILE),xml
+
 *vwrite,'<?xml version="1.0" standalone="','yes"?>'
 %C%C
 *vwrite,'<NewDataSet>'
