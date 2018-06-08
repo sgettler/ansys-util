@@ -112,6 +112,12 @@ set,first
 %C%C%C
 *vwrite,'    <StepNum>',chrval(I),'</StepNum>'
 %C%C%C
+*get,MODE_UX,node,NODELIST(J),u,x
+*vwrite,'    <U1>',chrval(MODE_UX),'</U1>'
+%C%C%C
+*get,MODE_UY,node,NODELIST(J),u,y
+*vwrite,'    <U2>',chrval(MODE_UY),'</U2>'
+%C%C%C
 *get,MODE_UZ,node,NODELIST(J),u,z
 *vwrite,'    <U3>',chrval(MODE_UZ),'</U3>'
 %C%C%C
