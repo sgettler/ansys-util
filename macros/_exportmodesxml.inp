@@ -27,10 +27,8 @@
 
 /post1
 
-OUTPATH = 'results'        ! output file path
+OUTPATH = 'results'         ! output file path
 OUTFILE = 'output'          ! output file name
-
-N_MODES = 25                ! number of modes to output
 
 
 
@@ -97,6 +95,7 @@ allsel
 !---------------------------------------
 
 allsel
+*get,N_MODES,active,,set,nset
 *get,N_NODES,node,,count
 *vget,NODELIST,node,,nlist
 
